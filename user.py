@@ -30,9 +30,7 @@ class User:
         for i in range(len(items)):
             albums_dict[i] = [items[i]['title'], items[i]['id'], items[i]['size']]
 
-        print(f'У пользователя {user_id_or_nickname} доступны альбомы: ')
-        for album in albums_dict:
-            print(f'Для выбора альбома "{albums_dict[album][0]}" жми "{album}" в нем "{albums_dict[album][2]}" фото')
+        return albums_dict
 
     def backup_profile_photos(self, count=5, backup_folder="user_photos", album_id="album_id"):
         photos = self.get_profile_photos(count, album_id)
@@ -60,6 +58,7 @@ class User:
             if len(like_photos) > 1:
                 for like_photo in like_photos:
                     like_photo.use_date_in_file_name = True
+
         return photos
 
     def get_photo_likes(self, item_id):
@@ -68,15 +67,24 @@ class User:
         return response["count"]
 
     def upload_photos_yandex(self, photos, backup_folder):
+        list_upload = []
+        status = []
         print("Создаю папку {} в Yandex Disk".format(backup_folder))
         self.yandex_client.create_folder(backup_folder)
         for photo in tqdm(photos, desc='Идет загрузка файлов', leave=False):
             path = backup_folder + "/" + photo.get_file_name()
             url = photo.url
-            self.yandex_client.upload(path, url)
-
-        print(f'Фотографии загружены')
-
+            data = self.yandex_client.upload(path, url)
+            list_upload.append(data["href"])
+        for url in tqdm(list_upload, desc='Идет проверка загрузки', leave=False):
+            err = self.yandex_client.check_upload(url)
+            status.append(err["status"])
+        if 'failed' in status:
+            print('Возможно что то пошло не так, проверьте введенные данные.')
+        elif 'in-progress' in status:
+            print('Есть небольшие предупреждения, стоит убедитьсячто все хорошо.')
+        else:
+            print(f'Все фотографии успешно загружены! =)')
 
     def save_photos_to_json(self, file_name, photos):
         print("Сохраняю отчет в {}".format(file_name))

@@ -1,6 +1,7 @@
 import requests
 import time
 
+
 class VkApi:
     def __init__(self, token, api_url, api_version):
         self.token = token
@@ -20,7 +21,10 @@ class VkApi:
             res.raise_for_status()
             data = res.json()
             if 'error' in data and 'error_code' in data['error'] and data['error']['error_code'] == 6:
-                time.sleep(1)
+                errlog = open("errlog.log", "a+", encoding='utf-8')
+                errlog.write(f'error_code: {data["error"]["error_code"]} error_msg: {data["error"]["error_msg"]}\n')
+                errlog.close()
+                time.sleep(0.3)
             else:
                 repeat = False
         return res.json()
@@ -52,13 +56,15 @@ class VkApi:
             res.raise_for_status()
             data = res.json()
             if 'error' in data and 'error_code' in data['error'] and data['error']['error_code'] == 6:
-                time.sleep(1)
+                errlog = open("errlog.log", "a+", encoding='utf-8')
+                errlog.write(f'error_code: {data["error"]["error_code"]} error_msg: {data["error"]["error_msg"]}\n')
+                errlog.close()
+                time.sleep(0.3)
             elif 'error' in data and 'error_code' in data['error'] and data['error']['error_code'] == 30:
                 print('Это закрытый акаунт, ни чего не получится ¯\_(ツ)_/¯ ...!')
                 exit()
             else:
                 repeat = False
-
         return res.json()
 
     def get_likes(self, owner_id, item_id):
@@ -75,7 +81,10 @@ class VkApi:
             res.raise_for_status()
             data = res.json()
             if 'error' in data and 'error_code' in data['error'] and data['error']['error_code'] == 6:
-                time.sleep(1)
+                errlog = open("errlog.log", "a+", encoding='utf-8')
+                errlog.write(f'error_code: {data["error"]["error_code"]} error_msg: {data["error"]["error_msg"]}\n')
+                errlog.close()
+                time.sleep(0.3)
             else:
                 repeat = False
 
